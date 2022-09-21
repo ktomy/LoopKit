@@ -76,6 +76,7 @@ final class MockPumpManagerSettingsViewController: UITableViewController {
 
     private enum ActionRow: Int, CaseIterable {
         case suspendResume = 0
+        case siteChange
         case occlusion
         case pumpError
     }
@@ -155,6 +156,10 @@ final class MockPumpManagerSettingsViewController: UITableViewController {
             case .suspendResume:
                 let cell = tableView.dequeueReusableCell(withIdentifier: SuspendResumeTableViewCell.className, for: indexPath) as! SuspendResumeTableViewCell
                 cell.basalDeliveryState = pumpManager.status.basalDeliveryState
+                return cell
+            case .siteChange:
+                let cell = tableView.dequeueReusableCell(withIdentifier: TextButtonTableViewCell.className, for: indexPath) as! TextButtonTableViewCell
+                cell.textLabel?.text = "Signal Site change"
                 return cell
             case .occlusion:
                 let cell = tableView.dequeueReusableCell(withIdentifier: TextButtonTableViewCell.className, for: indexPath) as! TextButtonTableViewCell
@@ -321,6 +326,10 @@ final class MockPumpManagerSettingsViewController: UITableViewController {
                 if let suspendResumeCell = sender as? SuspendResumeTableViewCell {
                     suspendResumeCellTapped(suspendResumeCell)
                 }
+                tableView.deselectRow(at: indexPath, animated: true)
+            case .siteChange:
+                pumpManager.injectPumpEvents(
+                    [NewPumpEvent(siteChangeAt: Date())] )
                 tableView.deselectRow(at: indexPath, animated: true)
             case .occlusion:
                 pumpManager.injectPumpEvents(pumpManager.state.occlusionDetected ? [NewPumpEvent(alarmClearAt: Date())] : [NewPumpEvent(alarmAt: Date(), alarmType: .occlusion)])
@@ -622,5 +631,13 @@ fileprivate extension NewPumpEvent {
                   raw: Data(UUID().uuidString.utf8),
                   title: "alarmClear",
                   type: .alarmClear)
+    }
+
+    init(siteChangeAt date: Date) {
+        self.init(date: date,
+                  dose: nil,
+                  raw: Data(UUID().uuidString.utf8),
+                  title: "siteChange",
+                  type: .siteChange)
     }
 }
