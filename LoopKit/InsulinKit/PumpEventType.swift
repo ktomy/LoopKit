@@ -20,6 +20,7 @@ public enum PumpEventType: String, CaseIterable {
     case rewind     = "Rewind"
     case suspend    = "PumpSuspend"
     case tempBasal  = "TempBasal"
+    case siteChange = "SiteChange"
 }
 
 
@@ -50,6 +51,8 @@ extension PumpEventType {
             return 8
         case .basal:
             return 9
+        case .siteChange:
+            return 10
         }
     }
 }
